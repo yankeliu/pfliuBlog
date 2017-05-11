@@ -1,0 +1,152 @@
+<template>
+  <div class="article">
+    <div class="titleLabel">
+      <span>请输入文章标题：</span> <input type="text" id="title" v-model='title'>
+    </div>
+    <div class="titleLabel">
+      <span>请选择标签：</span>
+      <label  v-for='item in labels'><input v-model='checkedLabels' class="label" type="checkbox" :value='item'> {{item}}</label>
+    </div>
+    <div class="markdownEditor">
+        <textarea id="editor"></textarea>
+    </div>
+    <input class="button" type="submit" value="发布" @click='articlePublish'>
+    <div>{{articleContent}}</div> 
+  </div>
+</template>
+
+<script>
+import SimpleMDE from 'simplemde';
+export default {
+  name: 'markdown-editor',
+  data () {
+    return {
+      checkedLabels:[],
+      labels:['javascript','css','html','vue'],
+      title:'ery',
+      articleContent: '# dg',
+      previewClass: '',
+      customTheme: false,
+      configs: {}    
+    } 
+  },
+  ready() {
+    this.initialize();
+  },
+  mounted() {
+    this.initialize();
+    this.syncValue();
+  },
+  methods: {
+    initialize() {
+      let configs = {};
+      Object.assign(configs, this.configs);
+      configs.element = document.getElementById('editor');
+      configs.initialValue = configs.initialValue || this.articleContent;
+      // 实例化编辑器
+      this.simplemde = new SimpleMDE(configs);
+      // 判断是否开启代码高亮
+      if (configs.renderingConfig && configs.renderingConfig.codeSyntaxHighlighting) {
+        require.ensure([], () => {
+          const theme = configs.renderingConfig.highlightingTheme || 'default';
+          window.hljs = require('highlight.js');
+          require(`highlight.js/styles/${theme}.css`);
+        }, 'highlight');
+      }
+      // 判断是否引入样式文件
+      if (!this.customTheme) {
+        require('simplemde/dist/simplemde.min.css');
+      }
+      // 添加自定义 previewClass
+      const className = this.previewClass || '';
+      this.addPreviewClass(className);
+      // 绑定事件
+      this.bindingEvents();
+    },
+    bindingEvents() {
+      this.simplemde.codemirror.on('change', () => {
+        this.$emit('input', this.simplemde.value());
+      });
+    },
+    addPreviewClass(className) {
+      const wrapper = this.simplemde.codemirror.getWrapperElement();
+      const preview = document.createElement('div');
+      wrapper.nextSibling.className += ` ${className}`;
+      preview.className = `editor-preview ${className}`;
+      wrapper.appendChild(preview);
+    },
+    syncValue() {
+      this.simplemde.codemirror.on('change', () => {
+        this.articleContent = this.simplemde.value();
+      });
+    },
+    articlePublish() {
+      var self = this
+      var obj = {
+          title: self.title,
+          articleContent: self.articleContent,
+          state: 1
+      }  
+      this.$http.post('/admin/article/publish', {
+                    article: obj
+                }).then(
+                    respone => {
+                        alert('文章发布成功')
+                    },
+                    respone => alert('文章发布失败')
+                )          
+
+    }
+  },
+  destroyed() {
+    this.simplemde = null;
+  },
+  watch: {
+    articleContent(val) {
+      if (val === this.simplemde.value()) return;
+      this.simplemde.value(val);
+    },
+  },
+};
+</script>
+
+<style scoped>
+.article{
+
+}
+#title{
+  height: 1.2rem;
+  font-size: 0.9rem;
+  border:none;
+  outline: none;
+  vertical-align: text-bottom;
+  width: 40%;
+  font-weight: bold;
+}
+.titleLabel{
+  line-height: 2.5rem;
+  border-bottom: 1px solid #ddd;
+  padding-left: 20px;
+  color: #656565;
+  font-size: 0.9rem;
+}
+.titleLabel label{
+  margin-left: 1rem;
+}
+.titleLabel .label{
+  width: 0.9rem;
+  height: 0.9rem;
+  vertical-align: middle;
+}
+.article .editor-toolbar{
+  border:none;
+  border-radius: none;
+}
+.article .CodeMirror{
+  border:none;
+}
+.button{
+  float: right;
+  margin-right: 20px;
+}
+</style>
