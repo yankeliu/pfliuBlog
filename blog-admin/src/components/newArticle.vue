@@ -1,37 +1,49 @@
 <template>
   <div class="article">
     <div class="titleLabel">
-      <span>请输入文章标题：</span> <input type="text" id="title" v-model='title'>
+      <span>文章标题：</span> <input type="text" id="title" v-model='title'>
     </div>
-    <div class="titleLabel">
-      <span>请选择标签：</span>
-      <label  v-for='item in labels'><input v-model='checkedLabels' class="label" type="checkbox" :value='item'> {{item}}</label>
+    <div class="titleLabel label1">
+      <p class="chooseContext">标签：</p>
+      <p class="chooseLabels">
+        <label  v-for='item in labels'><input v-model='checkedLabels' class="label" type="checkbox" :value='item._id'> {{item.name}}</label>
+      </p>
     </div>
     <div class="markdownEditor">
         <textarea id="editor"></textarea>
     </div>
     <input class="button" type="submit" value="发布" @click='articlePublish'>
     <div>{{articleContent}}</div> 
+    <div>{{checkedLabels}}</div> 
   </div>
 </template>
 
 <script>
 import SimpleMDE from 'simplemde';
+import '../assets/css/simplemde.min.css';
+import '../assets/css/atom-one-light.css';
 export default {
   name: 'markdown-editor',
   data () {
     return {
       checkedLabels:[],
-      labels:['javascript','css','html','vue'],
-      title:'ery',
-      articleContent: '# dg',
+      labels:[],
+      title:'',
+      articleContent: '',
       previewClass: '',
-      customTheme: false,
       configs: {}    
     } 
   },
   ready() {
     this.initialize();
+  },
+  created: function(){
+    this.$http.get('/admin/labels/list').then(
+        respones => {
+            this.labels = respones.body
+        },
+        respone => alert('标签获取失败')
+    )           
   },
   mounted() {
     this.initialize();
@@ -52,10 +64,6 @@ export default {
           window.hljs = require('highlight.js');
           require(`highlight.js/styles/${theme}.css`);
         }, 'highlight');
-      }
-      // 判断是否引入样式文件
-      if (!this.customTheme) {
-        require('simplemde/dist/simplemde.min.css');
       }
       // 添加自定义 previewClass
       const className = this.previewClass || '';
@@ -85,16 +93,26 @@ export default {
       var obj = {
           title: self.title,
           articleContent: self.articleContent,
-          state: 1
-      }  
-      this.$http.post('/admin/article/publish', {
+          state: 1,
+          label: self.checkedLabels
+      }
+      if (obj.title == '') {
+        alert('请输入文章标题')
+      } 
+      else if (obj.label.length < 1) {
+        alert('请选择标签！')
+      }
+      else{
+            this.$http.post('/admin/article/publish', {
                     article: obj
                 }).then(
-                    respone => {
-                        alert('文章发布成功')
+                    response => {
+                        alert(response.body.message)
                     },
-                    respone => alert('文章发布失败')
-                )          
+                    response => alert('文章发布失败')
+                )         
+      }
+               
 
     }
   },
@@ -119,24 +137,40 @@ export default {
   font-size: 0.9rem;
   border:none;
   outline: none;
-  vertical-align: text-bottom;
+  vertical-align: middle;
   width: 40%;
   font-weight: bold;
+  margin-left: 1rem;
+  border-bottom: 1px solid rgb(220,220,220);
 }
 .titleLabel{
   line-height: 2.5rem;
   border-bottom: 1px solid #ddd;
-  padding-left: 20px;
+  padding-left: 1rem;
   color: #656565;
   font-size: 0.9rem;
+  overflow: hidden;
+}
+.titleLabel.label1{
+  padding-left: 4rem;
 }
 .titleLabel label{
   margin-left: 1rem;
+  display: inline-block;
 }
 .titleLabel .label{
   width: 0.9rem;
   height: 0.9rem;
   vertical-align: middle;
+}
+.article .chooseContext{
+  width: 3rem;
+  float: left;
+  margin-left: -3rem;
+}
+.article .chooseLabels{
+  float: left;
+  width: 100%;
 }
 .article .editor-toolbar{
   border:none;
@@ -148,5 +182,8 @@ export default {
 .button{
   float: right;
   margin-right: 20px;
+}
+.markdownEditor{
+  clear: both;
 }
 </style>

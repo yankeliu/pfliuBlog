@@ -1,7 +1,7 @@
 <template>
   <div class="articleDetail">
-    <h1>javascript</h1>
-    <div class="markContent" v-compiledMarkdown>{{content}}</div>
+    <h1 v-if='showContent'>{{detail.title}}</h1>
+    <div v-if='showContent' class="markContent" v-compiledMarkdown>{{detail.articleContent}}</div>
   </div>
 </template>
 
@@ -10,9 +10,11 @@ import marked from 'marked';
 import highlight from 'highlight.js'
 import '../assets/css/atom-one-light.css'
 export default {
+  
   data () {
     return {
-      content: ''
+      detail: {},
+      showContent: false
     }
   },
   created () {
@@ -40,7 +42,16 @@ export default {
   },
   methods:{
     fetchData: function() {
-      this.content='# 标题\n## 标题2\n### 标题3\n```\n<html></html>\n// 以 jQuery 的 ajax 为例 \n $.get(\'/get_url\', function(result, status) {\n  if(status == \'success\') {\n  var s=5;\n  alert(\'success\');\n  }\nif(status == \'error\') {\n    alert(\'error\');\n  }\n});\n```\n的和v分块v函数的，是肯定会覅偶对收购覅读后感掉，四的姑父if公司饿哦i，是个大幅我给粉丝而非hi福和v发快递幸福和\n\nvin三等分hi小和v粉丝哦阿富汗与第四幅\n![](http://sajfg)';
+      let url = '/article/' + this.$route.params.index
+      let self = this
+      this.$http.get(url).then( 
+        reponse => {
+          self.detail = reponse.body
+          self.showContent = true
+        }, 
+        reponse => {
+          console.log(response)
+        })
     }
   },
   watch: {
@@ -48,8 +59,8 @@ export default {
   },  
   directives: {
         compiledMarkdown: {
-            bind: function(el){
-                el.innerHTML = marked(el.innerText);
+            bind: function(el, binding, vnode){
+                 el.innerHTML = marked(el.innerText);
             }
         }
     }  

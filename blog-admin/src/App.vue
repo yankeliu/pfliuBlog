@@ -5,7 +5,7 @@
       <ul>
         <li @click="articleList">文章列表</li>
         <li>草稿箱</li>
-        <li>标签管理</li>
+        <li @click="showLabels">标签管理</li>
         <li @click="newArticle">新建文章</li>
       </ul>
     </div>
@@ -25,6 +25,9 @@ export default {
     },
     articleList: function() {
       this.$router.push('/');
+    },
+    showLabels: function() {
+      this.$router.push('/labelsList');
     }
   }
 }

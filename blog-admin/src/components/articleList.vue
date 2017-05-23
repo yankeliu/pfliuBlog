@@ -3,8 +3,8 @@
     <h1>文章列表</h1>
     <ul>
       <li v-for='article in listDatas'>
-        <h2 @click='articleDetails'>{{article.title}}</h2>
-        <span class="date">{{article.date}}</span>
+        <h2 @click='articleDetails(article._id)'>{{article.title}}</h2>
+        <span class="date">{{article.meta.createAt}}</span>
       </li>           
     </ul>
   </div>
@@ -15,35 +15,22 @@ export default {
   name: 'hello',
   data () {
     return {
-      listDatas: [
-        {
-          title:'javascript',
-          date:'2017-05-01'
-        },
-        {
-          title:'css & javascript',
-          date:'2017-05-02'
-        },
-        {
-          title:'html和javascript',
-          date:'2017-05-03'
-        },
-        {
-          title:'javasdjkg cript',
-          date:'2017-05-04'
-        }
-      ]
+      listDatas: []
     }
   },
   created: function(){
+    let self = this
     this.$http.get('/admin/article/list').then(
-      respone => console.log(respone.body.reverse()),
+      response => {
+        self.listDatas = response.body.reverse()
+        console.log(self.listDatas)
+      },
       respone => console.log(respone)
     )    
   },
   methods:{
-    articleDetails: function() {
-      this.$router.push('/artDetails');
+    articleDetails: function(id) {
+      this.$router.push('/artDetails/' + id);
     }
   }
 }

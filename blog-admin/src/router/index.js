@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import articleList from '@/components/articleList'
 import newArticle from '@/components/newArticle'
 import articleDetails from '@/components/articleDetails'
+import labelsList from '@/components/labelsList'
 
 Vue.use(Router)
 
@@ -19,9 +20,14 @@ export default new Router({
       component: newArticle
     },
     {
-      path: '/artDetails',
+      path: '/artDetails/:index',
       name: 'artDetails',
       component: articleDetails
-    }
+    },
+    {
+      path: '/labelsList',
+      name: 'labelsList',
+      component: labelsList
+    }    
   ]
 })

@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-express": "^0.3.5"
+  },
+  "dependencies": {
+    "moment": "^2.18.1"
+  }
+}
