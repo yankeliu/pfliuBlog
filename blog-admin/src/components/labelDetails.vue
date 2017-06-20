@@ -1,11 +1,9 @@
 <template>
   <div class="articleList">
-    <h1>文章列表</h1>
+    <h1>标签： {{name}}</h1>
     <ul>
       <li v-for='article in listDatas'>
-        <list-item :article='article' :showStatus = 'false'></list-item>
-        <!-- <h2 @click='articleDetails(article._id)'>{{article.title}}</h2>
-        <span class="date">{{article.meta.updateAt}}</span> -->
+        <list-item :article='article'  :showStatus = 'true'></list-item>
       </li>           
     </ul>
   </div>
@@ -17,7 +15,8 @@ export default {
   name: 'hello',
   data () {
     return {
-      listDatas: []
+      listDatas: [],
+      name: ''
     }
   },
   components: {
@@ -25,9 +24,12 @@ export default {
   },
   created: function(){
     let self = this
-    this.$http.get('/admin/article/list').then(
+    let url = '/admin/labelDetails/' + this.$route.params.id
+    this.$http.get(url).then(
       response => {
-        self.listDatas = response.body.reverse()
+        let label = response.body;
+        self.listDatas = label.article.reverse()
+        self.name = label.name
         console.log(self.listDatas)
       },
       respone => console.log(respone)

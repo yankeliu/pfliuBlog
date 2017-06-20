@@ -4,6 +4,12 @@
     "gulp-express": "^0.3.5"
   },
   "dependencies": {
-    "moment": "^2.18.1"
+    "connect-multiparty": "^2.0.0",
+    "fs": "^0.0.1-security",
+    "moment": "^2.18.1",
+    "multiparty": "^4.1.3",
+    "path": "^0.12.7",
+    "underscore": "^1.8.3",
+    "util": "^0.10.3"
   }
 }

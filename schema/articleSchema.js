@@ -6,7 +6,7 @@ var ObjectId = Schema.Types.ObjectId
 var ArticleSchema = new Schema({
   title: String,
   label: [{type: ObjectId, ref: 'Label'}],
-  state: Number,
+  status: Number,
   articleContent: String,
   meta: {  /*记录更新或录入的时间*/
     createAt: String,

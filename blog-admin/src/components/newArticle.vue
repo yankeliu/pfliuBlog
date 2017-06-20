@@ -1,5 +1,5 @@
 <template>
-  <div class="article">
+  <div class="article" >
     <div class="titleLabel">
       <span>文章标题：</span> <input type="text" id="title" v-model='title'>
     </div>
@@ -9,12 +9,17 @@
         <label  v-for='item in labels'><input v-model='checkedLabels' class="label" type="checkbox" :value='item._id'> {{item.name}}</label>
       </p>
     </div>
-    <div class="markdownEditor">
+    <div class="markdownEditor" :class="{droppingImg: showDrag}" @drop.prevent = uploadImg($event) @dragenter.prevent = uploadImg($event) @dragover.prevent = uploadImg($event)>
         <textarea id="editor"></textarea>
     </div>
-    <input class="button" type="submit" value="发布" @click='articlePublish'>
-    <div>{{articleContent}}</div> 
-    <div>{{checkedLabels}}</div> 
+    <div class="publish">
+      <input class="button" type="submit" value="保存草稿" @click='articlePublish(0)'>
+      <input class="button" type="submit" value="发布文章" @click='articlePublish(1)'>
+    </div>
+    <!-- <div>{{articleContent}}</div> 
+    <div>{{checkedLabels}}</div>  -->
+    <!-- <button @click='showImg($event)'>点击添加图片</button> -->
+
   </div>
 </template>
 
@@ -31,23 +36,49 @@ export default {
       title:'',
       articleContent: '',
       previewClass: '',
-      configs: {}    
+      configs: {},
+      id: 0,
+      showDrag: false
     } 
   },
   ready() {
     this.initialize();
   },
   created: function(){
+    console.log('test');
     this.$http.get('/admin/labels/list').then(
         respones => {
             this.labels = respones.body
         },
-        respone => alert('标签获取失败')
-    )           
+        respones => alert('标签获取失败')
+    );
+
+
+    let id = this.$route.query.id;
+    if (id) {
+      this.id = id
+      let url = '/article/' +id
+      this.$http.get(url).then(
+        respones => {
+            this.checkedLabels = respones.body.label.map(function(item) {
+              return item._id
+            })
+            this.title = respones.body.title
+            this.articleContent = respones.body.articleContent
+        },
+        respones => alert('文章数据读取失败')
+      );      
+    }
+
   },
   mounted() {
     this.initialize();
     this.syncValue();
+  },
+  distroyed: function(){
+      this.checkedLabels = [];
+      this.title = '';
+      this.articleContent = '';
   },
   methods: {
     initialize() {
@@ -62,7 +93,7 @@ export default {
         require.ensure([], () => {
           const theme = configs.renderingConfig.highlightingTheme || 'default';
           window.hljs = require('highlight.js');
-          require(`highlight.js/styles/${theme}.css`);
+          //require(`highlight.js/styles/${theme}.css`);
         }, 'highlight');
       }
       // 添加自定义 previewClass
@@ -88,33 +119,91 @@ export default {
         this.articleContent = this.simplemde.value();
       });
     },
-    articlePublish() {
+    articlePublish(status) {
       var self = this
       var obj = {
           title: self.title,
           articleContent: self.articleContent,
-          state: 1,
+          status: status,
           label: self.checkedLabels
       }
+      console.log(obj._id)
       if (obj.title == '') {
         alert('请输入文章标题')
       } 
       else if (obj.label.length < 1) {
         alert('请选择标签！')
       }
+      else if (self.simplemde.value() == '') {
+        alert('文章内容不能为空')
+      }
       else{
-            this.$http.post('/admin/article/publish', {
-                    article: obj
+            self.$http.post('/admin/article/publish', {
+                    article: obj,
+                    _id: self.id
                 }).then(
                     response => {
-                        alert(response.body.message)
+                      let message = response.body.message
+                      if (message instanceof Array) {
+                        alert(message[status])
+                        self.title = ''
+                        self.checkedLabels = []
+                        self.simplemde.value('')                      
+                      }
+                      else {
+                        alert(message);
+                      }
+                       
                     },
-                    response => alert('文章发布失败')
+                    response => alert('操作失败')
                 )         
       }
                
 
-    }
+    },
+    uploadImg(event) {
+      let type = event.type
+      switch (type) {
+        case 'dragenter':
+        case 'dragover':
+          this.showDrag = true
+          break
+        case 'drop':
+          this.showDrag = false
+          break 
+        default:
+          this.showDrag = false         
+      } 
+      if (type == 'drop' && event.target.className == 'CodeMirror-scroll') {
+          let data = new FormData();
+          let files = event.dataTransfer.files;
+
+          let i = 0;
+          let len = files.length;
+      
+          while (i < len){
+            if (files[i].type.split('/')[0] !== 'image') {
+              alert('请拖拽图片')
+              return
+            };
+              data.append("file" + i, files[i]);
+              i++;
+          }
+          let self = this
+          this.$http.post('/admin/image/upload', data/*, {'Content-Type': 'multipart/form-data'}*/).then( response => {
+            response.body.forEach(function(item) {
+              self.articleContent += '\n\n![' + item.name +'](' + item.path  + ')\n\n'
+            }) 
+            console.log(response.body)
+          })        
+      } 
+    }/*,
+    showImg(ev) {
+      var img = new Image();
+      img.src = '../../public/upload/000.jpeg';
+      ev.target.parentNode.appendChild(img);
+      console.log(ev.target.parentNode.innerHTML)
+    }*/
   },
   destroyed() {
     this.simplemde = null;
@@ -124,6 +213,15 @@ export default {
       if (val === this.simplemde.value()) return;
       this.simplemde.value(val);
     },
+    $route (val, oldval) {
+      console.log(val);
+      console.log(oldval);
+      if (val.path == '/newArticle') {
+          this.title = '';
+          this.checkedLabels = [];
+          this.simplemde.value('');        
+      }
+    }
   },
 };
 </script>
@@ -142,6 +240,7 @@ export default {
   font-weight: bold;
   margin-left: 1rem;
   border-bottom: 1px solid rgb(220,220,220);
+  padding-bottom: 0.2rem;
 }
 .titleLabel{
   line-height: 2.5rem;
@@ -150,6 +249,8 @@ export default {
   color: #656565;
   font-size: 0.9rem;
   overflow: hidden;
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
 }
 .titleLabel.label1{
   padding-left: 4rem;
@@ -180,10 +281,30 @@ export default {
   border:none;
 }
 .button{
-  float: right;
-  margin-right: 20px;
+  margin-right: 1rem;
+  font-size: 0.8rem;
+  background-color: rgba(90,260,230,0.5);
+  border-style: none;
+  height: 1.5rem;
+  padding: 0 0.8rem;
+  border-radius: 0.3rem;
+  cursor: pointer;
+  border: 1px #8c8c89 solid;
+  outline: none;
 }
 .markdownEditor{
   clear: both;
+  overflow: hidden;
+}
+.publish{
+  float: right;
+  overflow: hidden;
+  margin: 1rem;
+}
+.button:hover{
+  background-color:  rgba(50,211,195,0.5)
+}
+.droppingImg .CodeMirror.cm-s-paper.CodeMirror-wrap{
+  border: 1px red solid;
 }
 </style>

@@ -1,8 +1,11 @@
 <template>
   <div class="showLabels">
-  <h2>标签</h2>
+  <h1>标签</h1>
   <div  class="labelList">
-    <label v-for='item in labels' @click="showLabelBlogs(item)"><span>{{item.name}}</span>(<span>{{item.article.length}}</span>)</label>
+    <label v-for='(item, index) in labels' v-if='deleteLab.indexOf(index) == -1'>
+        <span>{{item.name}}</span>(<span>{{item.article.length}}</span>)
+        <span class="cover-item check"  @click="showLabelBlogs(item._id)"><i class="iconfont icon-fangdajing"></i></span><span class="cover-item delete" @click="deleteLabel(item._id, index)"><i class="iconfont icon-shanchu"></i></span>
+    </label>
   </div>
     
     <p class="newLabel" >
@@ -17,7 +20,8 @@ export default {
   data () {
     return {
       labels: [],
-      newLabelName: ''
+      newLabelName: '',
+      deleteLab: []
     }
   },
   created: function(){
@@ -30,7 +34,7 @@ export default {
   },
   methods: {
     showLabelBlogs: function( label ) {
-      this.$router.push({path:'/oneLabel/' + label});
+      this.$router.push({path:'/labelDetails/' + label});
     },
     newLabel() {
       let self = this
@@ -56,16 +60,35 @@ export default {
         )   
       }
 
+    },
+    deleteLabel(id, index) {
+      if (confirm('确定删除该标签？')){
+        let url = '/admin/labelDelete/' + id
+        console.log(url)
+        let self =this
+        self.$http.delete(url).then(
+          response => {
+            if(response.body.success){
+              self.deleteLab.push(index)
+            }
+          },
+          response => {
+            console.log(response)
+          })
+      }      
     }   
   }
 }
 </script>
 
 <style>
+h1{
+  font-size: 1.2rem;
+}
 .showLabels{
   color: #8c8c89;
-  padding: 20px 30px;
-  width: 100%;
+  margin: 1rem auto;
+  width: 80%;
   overflow: hidden;
 }
 .showLabels h2 {
@@ -83,18 +106,45 @@ export default {
   border: 1px solid #8c8c89;
   line-height: 1rem;
   padding: 0.3rem 0.6rem;
-  margin: 10px auto;
-  margin-right: 0.5rem;
+  margin: 0.2rem 0.2rem;
   border-radius: 0.5rem;
   transition: all 0.2s;
   cursor: pointer;
   font-size: 0.9rem;
   display: inline-block;
+  position: relative;
+  overflow: hidden;
 }
 .showLabels label:hover{
-  color: #383838;
-  background-color: #f5f5f5;
+  background-color: rgba(135,135,141,.9);
 }
+.showLabels label:hover .cover-item{
+  display: inline-block;
+}
+.showLabels .cover-item:hover{
+  background-color: rgba(100,100,110,.5);
+}
+.showLabels .cover-item:hover .icon-fangdajing:before{
+  color: #32d3c3;
+}
+.showLabels .cover-item:hover .icon-shanchu:before{
+  color: #32d3c3;
+}
+.showLabels .cover-item{
+  position: absolute;
+  top: 0;
+  width: 50%;
+  text-align: center;
+  line-height: 1.6rem;
+  display: none;
+}
+.showLabels .check{
+  left: 0;
+}
+.showLabels .delete{
+  left: 50%;
+}
+
 .newLabel{
   color: rgb(50,50,50);
 }
@@ -106,7 +156,8 @@ export default {
   border-radius: 0.2rem;
   border: 1px #8c8c89 solid;
   background: none;
-  padding: 0 0.3rem;
+  padding: 0 0.4rem;
+  margin: 0.3rem 0;
 }
 .newLabel input::-webkit-input-placeholder{
   color: #999999;
