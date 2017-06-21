@@ -20,6 +20,7 @@
 - `blog-font`文件夹对应前台页面代码，使用`vue-cli`
 - `public`文件夹存储上传文件
 - `server`文件夹中包含数据模型`model`和后端路由代码以及用户信息
+- `preview`存放后台页面展示图片
 
 ## 运行
 
@@ -29,3 +30,6 @@
 - 浏览器地址栏输入`http://localhost:8001/admin`
 - 登录用户名：ffl;   密码： 123
 
+![后台页面展示](https://github.com/yankeliu/pfliuBlog/blob/master/preview/%E5%90%8E%E5%8F%B0%E9%A1%B5%E9%9D%A2%E5%B1%95%E7%A4%BA.gif)
+
+![后台页面展示](http://i.imgur.com/Rgh4ubq.gif)
