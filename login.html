@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>后台登录</title>
+</head>
+<style>
+  body{
+    background-color: #2a2935;
+  }
+  .panel{
+    width: 380px;
+    height: 280px;
+    background-color: #eee;
+    border-radius: 4px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -190px;
+    margin-top: -170px;
+    box-shadow: 0 0 20px black;
+    text-align: center;
+  }
+  h1{
+    text-align: center;
+    font-family:  Helvetica, Arial, sans-serif;
+    font-size: 30px;
+    font-weight: normal;
+    border-bottom: 1px dashed #a0a0a0;
+    margin:0 10px;
+    padding: 20px 0;
+    margin-bottom: 15px;
+  }
+  input,button{
+    outline: none;
+    background: none;
+    border-style: none;
+    border: 1px solid #9fabb9; 
+    height: 36px;
+    width: 280px;
+    margin-top: 15px;
+    border-radius: 4px;
+    font-size: 18px;
+    padding: 0 10px;
+  }
+  .panel button{
+    width: 300px;
+    background-color: #32d3c3;
+    color: #505050;
+    cursor: pointer;
+  }
+  .panel button:hover{
+    background-color: #22c3b3
+  }
+</style>
+<body>
+  <div class="panel"> 
+    <h1>博客后台登录</h1>
+    <!-- <form action="/admin/login" method="post"> -->
+      <input type="text" name="user_name" placeholder="username">
+      <input type="password" name="password" placeholder="password">
+      <button type="submit" id="btn">Login</button>      
+  </div>
+  <script>
+    var btn = document.getElementById('btn');
+    btn.addEventListener('click', function(event) {
+      // var form = document.forms[0];
+      // var user_name = form.user_name.value;
+      // var password = form.password.value;
+      //event.preventDefault();
+      var inputs = document.getElementsByTagName('input');
+      var user_name = inputs[0].value;
+      var password = inputs[1].value;
+      if (!user_name || !password) {
+        alert('用户名密码不能为空')
+      }
+      else {
+        var str = JSON.stringify({user_name: user_name, password: password});
+        console.log(str);
+        console.log('123');
+        var xhr = new XMLHttpRequest();
+        xhr.open("post", "/admin/login", true);
+        xhr.setRequestHeader('content-type', 'application/json');
+        xhr.send(str);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState == 4) {
+            if (xhr.status >= 200 && xhr.status < 300 || xhr.status == 304) {
+              if (JSON.parse(xhr.responseText).code==0){
+                location.reload();
+              }else{
+                  alert(JSON.parse(xhr.responseText).msg);
+              }
+            }
+            else {
+              console.error('error:'+xhr.responseText)
+            }
+          }
+        }     
+      }
+          
+    })
+    
+  </script>
+</body>
+</html>
