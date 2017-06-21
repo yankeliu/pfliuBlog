@@ -31,5 +31,3 @@
 - 登录用户名：ffl;   密码： 123
 
 ![后台页面展示](https://github.com/yankeliu/pfliuBlog/blob/master/preview/%E5%90%8E%E5%8F%B0%E9%A1%B5%E9%9D%A2%E5%B1%95%E7%A4%BA.gif)
-
-![后台页面展示](http://i.imgur.com/Rgh4ubq.gif)
