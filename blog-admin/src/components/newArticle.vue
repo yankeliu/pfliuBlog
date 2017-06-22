@@ -295,6 +295,8 @@ export default {
 .markdownEditor{
   clear: both;
   overflow: hidden;
+  word-break: break-all;
+  word-wrap: break-word;
 }
 .publish{
   float: right;

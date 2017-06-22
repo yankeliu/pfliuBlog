@@ -5,7 +5,7 @@ gulp.task('server', function(){
   server.run(['app.js']);
 
   // restart the server when app.js changes
-  gulp.watch(['app.js', 'schema/*.js'], server.run);
+  gulp.watch(['app.js', 'server/model/*.js','server/*.js'], server.run);
 })
 
 gulp.task('default',['server'])

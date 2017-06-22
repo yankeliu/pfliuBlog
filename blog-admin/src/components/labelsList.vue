@@ -28,6 +28,7 @@ export default {
     this.$http.get('/admin/labels/list').then(
         respones => {
             this.labels = respones.body
+            console.log(this.labels);
         },
         respone => alert('标签获取失败')
     )       
@@ -49,11 +50,11 @@ export default {
         this.$http.post('/admin/labels/new', {
             newLabelName: self.newLabelName
         }).then(
-            respone => {
-                self.labels.push({name:self.newLabelName,article:[]})
+            response => {
+                self.labels.push({name: self.newLabelName, article: [], _id: response.body});
                 self.newLabelName=''; 
             },
-            respone => {
+            response => {
               alert('标签添加失败');
               self.newLabelName=''; 
             }

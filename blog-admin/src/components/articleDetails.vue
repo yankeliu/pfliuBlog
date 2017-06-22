@@ -161,6 +161,10 @@ label{
 .label{
   margin:0 0.2rem;
 }
+.markContent{
+  word-break: break-all;
+  word-wrap: break-word;
+}
 @media screen and (max-width: 768px){
   .head_right{
     position: inherit;

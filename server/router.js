@@ -131,7 +131,7 @@ router.post('/admin/labels/new', function(req, res) {
       if (err) {
         console.log(err)/*判断是否有异常*/
       }   
-      res.send()
+      res.send(label._id)
     })
 })
 

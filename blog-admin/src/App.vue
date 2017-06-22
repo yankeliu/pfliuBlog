@@ -82,7 +82,9 @@ export default {
     $route (val, oldval) {
       switch(val.name) {
         case 'newArticle':
-          this.current = 3;
+          if(!val.query.id) {
+            this.current = 3;
+          }
           break;
         case 'labelsList':
           this.current = 2;
@@ -125,7 +127,8 @@ export default {
   height: 100vh;
   background-color: #2a2935;
   color: #999;
-  position: fixed;
+  /*position: fixed;*/
+  float:left;
 }
 .navBar .title{
   font-weight: normal;
@@ -152,6 +155,7 @@ export default {
   float: right;
   height: 100vh;
   transition: all 0.2s;
+  overflow-y: scroll;
 }
 .nav_left .active{
   background-color: #26252f;
